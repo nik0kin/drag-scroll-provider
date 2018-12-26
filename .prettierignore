@@ -2,3 +2,7 @@
 *.html
 .prettierignore
 yarn.lock
+.nvmrc
+*.yml
+coverage/
+.nyc_output

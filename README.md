@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.com/davidsa/drag-scroll-provider.svg?branch=develop)](https://travis-ci.com/davidsa/drag-scroll-provider)
+
+[![codecov](https://codecov.io/gh/davidsa/drag-scroll-provider/branch/develop/graph/badge.svg)](https://codecov.io/gh/davidsa/drag-scroll-provider) [![Greenkeeper badge](https://badges.greenkeeper.io/davidsa/drag-scroll-provider.svg)](https://greenkeeper.io/)
+
 ## Drag Scroll Provider
 
 Simple react component to enable scrolling with the mouse.
@@ -9,7 +13,6 @@ Simple react component to enable scrolling with the mouse.
 or
 
 `npm install --save drag-scroll-provider`
-
 
 ### Usage
 
@@ -24,10 +27,7 @@ import DragScrollProvider from 'drag-scroll-provider'
 ```jsx
 <DragScrollProvider>
     {({ onMouseDown, ref }) => (
-        <div
-          className="scrollable"
-          ref={ref}
-          onMouseDown={onMouseDown}>
+        <div className="scrollable" ref={ref} onMouseDown={onMouseDown}>
             // content that overflows the parent
         </div>
     )}
@@ -39,29 +39,35 @@ import DragScrollProvider from 'drag-scroll-provider'
 ```css
 .scrollable {
     width: 500px;
-    overflow-x: scroll;   
+    overflow-x: scroll;
 }
 ```
+
 optional: hide the scrollbar
-```css 
+
+```css
 .scrollable::-webkit-scrollbar {
     display: none;
-} 
-
+}
 ```
 
 ### Props
 
-* ```<DragScrollProvider vertical='true'>``` for vertical scroll.
+```
+<DragScrollProvider
+        vertical='true' // for vertical scrolling
+        threshold={0.015} // threshold in seconds for handling click and drags in clickItem function
+/>
+```
 
 ### Available functions provided
 
-``` 
+```
 {{
-   onMouseDown: this.provisionOnMouseDown, // required
-   ref: this.provisionRef, // required
-   clickItem: this.clickItem, // wraps onClick events on children
-   scrollTo: this.scrollTo, // scroll to specific value (useful for animations)
+   onMouseDown: function, // required
+   ref: React ref, // required
+   clickItem: function, // wraps onClick events on children
+   scrollTo: function, // scroll to specific value (useful for animations),
 }}
 ```
 
@@ -74,6 +80,7 @@ Lets say you have a `<Card />` component that handles a click event
 ```jsx
 <Card onClick={this.handleClick}>
 ```
+
 So we need to wrap this click event like this
 
 ```jsx
@@ -89,6 +96,3 @@ So we need to wrap this click event like this
   )}
 </DragScrollProvider>
 ```
-
-
-
