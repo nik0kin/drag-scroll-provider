@@ -58,7 +58,7 @@
         "nyc": "^13.1.0",
         "precise-commits": "^1.0.2",
         "prettier": "^1.14.3",
-        "react-dom": "^16.5.2",
+        "react-dom": "^16.8.0",
         "semantic-release": "^15.12.4",
         "sinon": "^7.1.1",
         "style-loader": "^0.23.0",
