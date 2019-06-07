@@ -4,20 +4,22 @@ import React, { Component } from 'react'
 
 const DEFAULT_THRESHOLD = 0.15
 
+const sLeft = 'scrollLeft'
+const sTop = 'scrollTop'
+
 export default class DragScrollProvider extends Component {
     constructor(props) {
         super(props)
         this.privateState = {
             isMouseDown: false,
-            lastMousePosition: null,
+            lastMousePosition: {
+                x: null,
+                y: null
+            },
             startTime: null,
         }
         this.refElement = null
         this.clearListeners = []
-        this.scrollAttr = 'scrollLeft'
-        this.eventMove = 'clientX'
-        this.scrollLength = 'scrollWidth'
-        this.scrollOffset = 'offsetWidth'
     }
 
     setPrivateState(state) {
@@ -35,12 +37,6 @@ export default class DragScrollProvider extends Component {
     }
 
     componentDidMount() {
-        if (this.props.vertical) {
-            this.scrollAttr = 'scrollTop'
-            this.eventMove = 'clientY'
-            this.scrollLength = 'scrollHeight'
-            this.scrollOffset = 'offsetHeight'
-        }
         this.threshold = this.props.threshold || DEFAULT_THRESHOLD
         this.addEventListenerWithClear('mouseup', this.onMouseUp)
         this.addEventListenerWithClear('mousemove', this.onMouseMove)
@@ -51,15 +47,25 @@ export default class DragScrollProvider extends Component {
     }
 
     keepScrolling(acceleration) {
-        const max =
-            this.refElement[this.scrollLength] -
-            this.refElement[this.scrollOffset]
+        const max = {
+            x: this.refElement.scrollWidth - this.refElement.offsetWidth,
+            y: this.refElement.scrollHeight - this.refElement.offsetHeight,
+        }
         this.animation = setTimeout(() => {
-            const scroll = this.refElement[this.scrollAttr]
-            if (scroll !== 0 && scroll !== max && acceleration !== 0) {
-                this.refElement[this.scrollAttr] += acceleration
-                acceleration =
-                    acceleration > 0 ? acceleration - 1 : acceleration + 1
+            const scrollX = this.refElement[sLeft]
+            const scrollY = this.refElement[sTop]
+            if (acceleration.x !== 0 || acceleration.y !== 0) {
+                if (acceleration.x !== 0 && scrollX !== 0 && scrollX !== max.x) {
+                    this.refElement[sLeft] += acceleration.x
+                    acceleration.x =
+                        acceleration.x > 0 ? acceleration.x - 1 : acceleration.x + 1
+                }
+                if (acceleration.y !== 0 && scrollY !== 0 && scrollY !== max.y) {
+                    this.refElement[sTop] += acceleration.y
+                    acceleration.y =
+                        acceleration.y > 0 ? acceleration.y - 1 : acceleration.y + 1
+                }
+
                 return this.keepScrolling(acceleration)
             }
         }, 10)
@@ -78,20 +84,37 @@ export default class DragScrollProvider extends Component {
         if (lastMousePosition === null) {
             return null
         }
-        this.refElement[this.scrollAttr] +=
-            lastMousePosition - event[this.eventMove]
+        this.refElement[sLeft] +=
+            lastMousePosition.x - event.clientX
+        this.refElement[sTop] +=
+            lastMousePosition.y - event.clientY
         this.setPrivateState({
-            lastMousePosition: event[this.eventMove],
+            lastMousePosition: {
+                x: event.clientX,
+                y: event.clientY
+            }
         })
     }
 
     onMouseUp = () => {
         const { startTime, positionStart } = this.privateState
-        const positionEnd = this.refElement[this.scrollAttr]
-        const distance = positionEnd - positionStart
+        const positionEnd = {
+            x: this.refElement[sLeft],
+            y: this.refElement[sTop]
+        }
+        const distance = {
+            x: positionEnd.x - positionStart.x,
+            y: positionEnd.y - positionStart.y
+        }
         const time = (new Date() - startTime) / 1000
-        const velocity = Math.round(distance / time)
-        const acceleration = Math.round(velocity / time / 100)
+        const velocity = {
+            x: Math.round(distance.x / time),
+            y: Math.round(distance.y / time)
+        }
+        const acceleration = {
+            x: Math.round(velocity.x / time / 100),
+            y: Math.round(velocity.y / time / 100)
+        }
         this.setPrivateState({
             isMouseDown: false,
             lastMousePosition: null,
@@ -106,9 +129,15 @@ export default class DragScrollProvider extends Component {
         }
         this.setPrivateState({
             isMouseDown: true,
-            lastMousePosition: event[this.eventMove],
+            lastMousePosition: {
+                x: event.clientX,
+                y: event.clientY
+            },
             startTime: new Date(),
-            positionStart: this.refElement[this.scrollAttr],
+            positionStart: {
+                x: this.refElement[sLeft],
+                y: this.refElement[sTop]
+            }
         })
     }
 
